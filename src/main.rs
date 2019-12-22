@@ -17,7 +17,9 @@ const SUBC_GENERATE: &'static str = "generate";
 const SUBC_BENCHMARK_SERIALIZE: &'static str = "benchmark_serialize";
 const SUBC_BENCHMARK_DESERIALIZE: &'static str = "benchmark_deserialize";
 
-fn run_generate() {}
+fn run_generate() {
+    unimplemented!("unimplemented");
+}
 
 fn serialize_to_protobuf(ticks: &Vec<Tick>, f: &mut File) {}
 fn serialize_to_cbor(ticks: &Vec<Tick>, f: &mut File) {
@@ -29,6 +31,9 @@ fn serialize_to_csv(ticks: &Vec<Tick>, f: &mut File) {
         w.serialize(d).unwrap();
     }
     w.flush().unwrap();
+}
+fn serialize_to_json(ticks: &Vec<Tick>, f: &mut File) {
+    serde_json::to_writer(f, ticks).unwrap();
 }
 fn serialize_to_rmp(ticks: &Vec<Tick>, f: &mut File) {
     rmp_serde::encode::write(f, ticks).unwrap()
@@ -74,6 +79,7 @@ fn run_serialize(src_file: &str) {
 
     println!("\nserialization results:");
     benchmark_serialize(&ticks, "csv", serialize_to_csv);
+    benchmark_serialize(&ticks, "json", serialize_to_json);
     benchmark_serialize(&ticks, "protobuf", serialize_to_protobuf);
     benchmark_serialize(&ticks, "cbor", serialize_to_cbor);
     benchmark_serialize(&ticks, "message_pack", serialize_to_rmp);
@@ -82,6 +88,7 @@ fn run_serialize(src_file: &str) {
 }
 
 fn run_deserialize() {
+    unimplemented!("unimplemented");
     //    fn a(bench: &mut Bencher) {
     //        bench.iter(|| (0..1000).fold(0, |x, y| x + y))
     //    }
@@ -116,8 +123,6 @@ fn main() {
     match matches.subcommand_name().unwrap() {
         SUBC_GENERATE => {
             run_generate();
-
-            println!("{}", SUBC_GENERATE);
         }
         SUBC_BENCHMARK_SERIALIZE => {
             let serialize_arg = matches
@@ -127,13 +132,9 @@ fn main() {
             let src_file = serialize_arg.value_of("file").unwrap();
 
             run_serialize(src_file);
-
-            println!("{}", SUBC_BENCHMARK_SERIALIZE);
         }
         SUBC_BENCHMARK_DESERIALIZE => {
             run_deserialize();
-
-            println!("{}", SUBC_BENCHMARK_DESERIALIZE);
         }
         _ => panic!("invalid param"),
     };

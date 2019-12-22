@@ -9,6 +9,7 @@ use crate::structure::tick::Tick;
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::fs;
 use std::fs::File;
+use std::io::Write;
 use std::path::Path;
 use std::time::Instant;
 //use bencher::
@@ -21,10 +22,14 @@ fn run_generate() {
     unimplemented!("unimplemented");
 }
 
-fn serialize_to_protobuf(ticks: &Vec<Tick>, f: &mut File) {}
+fn serialize_to_protobuf(ticks: &Vec<Tick>, f: &mut File) {
+    // TODO
+}
+
 fn serialize_to_cbor(ticks: &Vec<Tick>, f: &mut File) {
     serde_cbor::to_writer(f, ticks).unwrap();
 }
+
 fn serialize_to_csv(ticks: &Vec<Tick>, f: &mut File) {
     let mut w = csv::Writer::from_writer(f);
     for d in ticks {
@@ -32,14 +37,25 @@ fn serialize_to_csv(ticks: &Vec<Tick>, f: &mut File) {
     }
     w.flush().unwrap();
 }
+
 fn serialize_to_json(ticks: &Vec<Tick>, f: &mut File) {
     serde_json::to_writer(f, ticks).unwrap();
 }
+
 fn serialize_to_rmp(ticks: &Vec<Tick>, f: &mut File) {
     rmp_serde::encode::write(f, ticks).unwrap()
 }
-fn serialize_to_bincode(ticks: &Vec<Tick>, f: &mut File) {}
-fn serialize_to_bson(ticks: &Vec<Tick>, f: &mut File) {}
+
+fn serialize_to_bincode(ticks: &Vec<Tick>, f: &mut File) {
+    bincode::serialize_into(f, ticks).unwrap();
+}
+
+fn serialize_to_bson(ticks: &Vec<Tick>, f: &mut File) {
+    // It doesn't work yet
+    //    let b = bson::to_bson(ticks).unwrap();
+    //    f.write(b.as_str().unwrap().as_bytes()).unwrap();
+    //    f.flush().unwrap();
+}
 
 fn benchmark_serialize<T>(ticks: &Vec<Tick>, name: &str, func: T)
 where
@@ -83,25 +99,63 @@ fn run_serialize(src_file: &str) {
     benchmark_serialize(&ticks, "protobuf", serialize_to_protobuf);
     benchmark_serialize(&ticks, "cbor", serialize_to_cbor);
     benchmark_serialize(&ticks, "message_pack", serialize_to_rmp);
-    benchmark_serialize(&ticks, "message_bincode", serialize_to_bincode);
+    benchmark_serialize(&ticks, "bincode", serialize_to_bincode);
     benchmark_serialize(&ticks, "bson", serialize_to_bson);
 }
 
+fn deserialize_from_csv(f: &File) -> Vec<Tick> {
+    let ticks: Vec<Tick> = csv::Reader::from_reader(f)
+        .deserialize::<Tick>()
+        .map(|x| x.unwrap())
+        .collect();
+    ticks
+}
+fn deserialize_from_json(f: &File) -> Vec<Tick> {
+    let r = serde_json::from_reader::<&File, Vec<Tick>>(f).unwrap();
+    r
+}
+fn deserialize_from_protobuf(f: &File) -> Vec<Tick> {
+    vec![]
+}
+fn deserialize_from_cbor(f: &File) -> Vec<Tick> {
+    serde_cbor::from_reader(f).unwrap()
+}
+fn deserialize_from_rmp(f: &File) -> Vec<Tick> {
+    rmp_serde::decode::from_read(f).unwrap()
+}
+fn deserialize_from_bincode(f: &File) -> Vec<Tick> {
+    bincode::deserialize_from(f).unwrap()
+}
+fn deserialize_from_bson(f: &File) -> Vec<Tick> {
+    vec![]
+}
+
+fn benchmark_deserialize<T>(name: &str, func: T)
+where
+    T: Fn(&File) -> Vec<Tick>,
+{
+    let now = Instant::now();
+    let mut f = File::open(Path::new(format!(".tmp/serialize/{}.dat", name).as_str())).unwrap();
+    let ticks_len = func(&mut f).len();
+    let secs = now.elapsed().as_secs_f32();
+
+    if secs >= 0.1 {
+        println!(
+            "{:<15}    duration: {:>10.03}s     ticks_len: {}",
+            name, secs, ticks_len
+        );
+    }
+}
+
 fn run_deserialize() {
-    unimplemented!("unimplemented");
-    //    fn a(bench: &mut Bencher) {
-    //        bench.iter(|| (0..1000).fold(0, |x, y| x + y))
-    //    }
-    //
-    //    fn b(bench: &mut Bencher) {
-    //        const N: usize = 1024;
-    //        bench.iter(|| vec![0u8; N]);
-    //
-    //        bench.bytes = N as u64;
-    //    }
-    //
-    //    benchmark_group!(benches, a, b);
-    //    benchmark_main!(benches);
+    println!("\ndeserialization results:");
+    benchmark_deserialize("csv", deserialize_from_csv);
+    benchmark_deserialize("json", deserialize_from_json);
+    benchmark_deserialize("protobuf", deserialize_from_protobuf);
+    benchmark_deserialize("cbor", deserialize_from_cbor);
+    benchmark_deserialize("message_pack", deserialize_from_rmp);
+    benchmark_deserialize("bincode", deserialize_from_bincode);
+    benchmark_deserialize("bson", deserialize_from_bson);
 }
 
 fn main() {

@@ -8,26 +8,23 @@ cargo run --release -- benchmark_deserialize
 
 ## Results
 
-- test stand: Dell XPS, CPU: `Intel i7-8550U (4 cores, 8 threads)`
+- test stand: CPU: `i7-6850K CPU @ 3.60GHz one thread`
 
 - initial csv file size:  `48565.713 kb`
 - rows in csv file: `2026424`
 
 ```text
-deserialization results:
+serialization (bufsize=16384)):
+csv                duration:      0.225s     size:  48565.713 kb
+json               duration:      0.508s     size: 117813.541 kb
+cbor               duration:      0.238s     size:  81138.500 kb
+message_pack       duration:      0.159s     size:  27690.138 kb
+bincode            duration:      0.076s     size:  39574.344 kb
+
+deserialization (bufsize=16384)):
 csv                duration:      0.385s
-json               duration:     77.258s
-cbor               duration:     16.245s
-message_pack       duration:      7.561s
-bincode            duration:      3.716s
-```
-
-```text
-serialization results:
-csv                duration:      0.215s     size:  48565.713 kb
-json               duration:     53.301s     size: 117828.227 kb
-cbor               duration:     27.566s     size:  81149.124 kb
-message_pack       duration:     16.442s     size:  27705.913 kb
-bincode            duration:      8.901s     size:  39578.602 kb
-
+json               duration:      1.585s
+cbor               duration:      0.692s
+message_pack       duration:      0.165s
+bincode            duration:      0.093s
 ```

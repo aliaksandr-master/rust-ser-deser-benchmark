@@ -6,6 +6,17 @@ cargo run --release -- benchmark_serialize
 cargo run --release -- benchmark_deserialize
 ```
 
+## Libraries
+
+- [speedy](https://crates.io/crates/speedy)
+- [serde_json](https://crates.io/crates/serde_json)
+- [csv](https://crates.io/crates/csv)
+- [bincode](https://crates.io/crates/bincode)
+- [serde_cbor](https://crates.io/crates/serde_cbor)
+- [rmp-serde](https://crates.io/crates/rmp-serde)
+- [protobuf](https://crates.io/crates/protobuf)
+
+
 ## Results
 
 - test stand: CPU: `i7-6850K CPU @ 3.60GHz one thread`

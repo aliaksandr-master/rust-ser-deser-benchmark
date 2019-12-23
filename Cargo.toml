@@ -17,9 +17,10 @@ speedy = "0.5.0"
 serde = { version = "1.0.104", features = ["derive"] }
 serde_json = "1.0.41"
 csv = "1.1.1"
-xz2 = "0.1.6"
 bincode = "1.2.1"
 serde_cbor = "0.10.2"
 rmp-serde = "0.14.0"
 capnp = "0.11.1"
 capnpc = "0.11.1"
+
+xz2 = "0.1.6"

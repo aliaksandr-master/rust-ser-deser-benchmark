@@ -13,6 +13,7 @@ bencher = "0.1.5"
 protobuf = { version = "2.8.1", features = ["with-bytes"] }
 protoc-rust = "2.8.1"
 bson = "0.14.0"
+speedy = "0.5.0"
 serde = { version = "1.0.104", features = ["derive"] }
 serde_json = "1.0.41"
 csv = "1.1.1"

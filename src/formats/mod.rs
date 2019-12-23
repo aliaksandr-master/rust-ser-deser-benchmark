@@ -4,3 +4,4 @@ pub mod csv;
 pub mod json;
 pub mod message_pack;
 pub mod protobuf;
+pub mod speedy;

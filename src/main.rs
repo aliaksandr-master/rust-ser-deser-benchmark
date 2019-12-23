@@ -1,5 +1,8 @@
 #![allow(unused)]
 
+#[macro_use]
+extern crate speedy;
+
 mod formats;
 mod structure;
 
@@ -9,6 +12,7 @@ use crate::formats::csv::{deserialize_from_csv, serialize_to_csv};
 use crate::formats::json::{deserialize_from_json, serialize_to_json};
 use crate::formats::message_pack::{deserialize_from_message_pack, serialize_to_message_pack};
 use crate::formats::protobuf::{deserialize_from_protobuf, serialize_to_protobuf};
+use crate::formats::speedy::{deserialize_from_speedy, serialize_to_speedy};
 use crate::structure::tick::Tick;
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::fs::File;
@@ -112,6 +116,7 @@ fn run_benchmark(src_file: &str) {
     benchmark_serialize(&ticks, "cbor", bufsize, serialize_to_cbor);
     benchmark_serialize(&ticks, "message_pack", bufsize, serialize_to_message_pack);
     benchmark_serialize(&ticks, "bincode", bufsize, serialize_to_bincode);
+    benchmark_serialize(&ticks, "speedy", bufsize, serialize_to_speedy);
 
     println!("\ndeserialization results (bufsize={})):", bufsize);
     benchmark_deserialize("csv", bufsize, deserialize_from_csv);
@@ -120,6 +125,7 @@ fn run_benchmark(src_file: &str) {
     benchmark_deserialize("cbor", bufsize, deserialize_from_cbor);
     benchmark_deserialize("message_pack", bufsize, deserialize_from_message_pack);
     benchmark_deserialize("bincode", bufsize, deserialize_from_bincode);
+    benchmark_deserialize("speedy", bufsize, deserialize_from_speedy);
 }
 
 fn main() {

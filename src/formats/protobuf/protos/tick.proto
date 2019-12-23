@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message ProtoTick {
+    double timestamp = 1;
+    uint64 price_ips = 2;
+    uint32 volume = 3;
+}
+
+message ProtoTickList {
+    repeated ProtoTick ticks = 1;
+}

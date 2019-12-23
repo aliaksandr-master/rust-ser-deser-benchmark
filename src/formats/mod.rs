@@ -1,5 +1,4 @@
 pub mod bincode;
-pub mod bson;
 pub mod cbor;
 pub mod csv;
 pub mod json;

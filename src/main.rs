@@ -4,7 +4,6 @@ mod formats;
 mod structure;
 
 use crate::formats::bincode::{deserialize_from_bincode, serialize_to_bincode};
-use crate::formats::bson::{deserialize_from_bson, serialize_to_bson};
 use crate::formats::cbor::{deserialize_from_cbor, serialize_to_cbor};
 use crate::formats::csv::{deserialize_from_csv, serialize_to_csv};
 use crate::formats::json::{deserialize_from_json, serialize_to_json};
@@ -12,18 +11,41 @@ use crate::formats::message_pack::{deserialize_from_message_pack, serialize_to_m
 use crate::formats::protobuf::{deserialize_from_protobuf, serialize_to_protobuf};
 use crate::structure::tick::Tick;
 use clap::{App, AppSettings, Arg, SubCommand};
-use std::fs;
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Instant;
+use std::{env, fs};
 //use bencher::
 
 const SUBC_GENERATE: &'static str = "generate";
 const SUBC_BENCHMARK: &'static str = "benchmark";
 
+fn cwd() -> String {
+    env::current_dir().unwrap().to_str().unwrap().to_string()
+}
+
 fn run_generate() {
-    unimplemented!("unimplemented");
+    use protoc_rust::Customize;
+    protoc_rust::run(protoc_rust::Args {
+        out_dir: "src/formats/protobuf/protos",
+        input: &["src/formats/protobuf/protos/tick.proto"],
+        includes: &["src/formats/protobuf/protos"],
+        customize: Customize {
+            serde_derive: Some(true),
+            carllerche_bytes_for_bytes: Some(true),
+            carllerche_bytes_for_string: Some(true),
+            ..Default::default()
+        },
+        ..Default::default()
+    })
+    .expect("protoc");
+
+    //    capnpc::CompilerCommand::new()
+    //        .file("src/formats/capnp/capnp/tick.capnp")
+    //        .output_path("src/formats/capnp")
+    //        .run()
+    //        .expect("capnpc");
 }
 
 fn benchmark_serialize<T>(ticks: &Vec<Tick>, name: &str, bufsize: usize, func: T)
@@ -41,7 +63,7 @@ where
 
     if secs >= 0.001 {
         println!(
-            "{:<15}    duration: {:>10.03}s     size: {:>10.03} kb",
+            "{:<15}  duration: {:>10.03} s   size: {:>10.03} kb",
             name,
             secs,
             File::open(path).unwrap().metadata().unwrap().len() as f64 / 1024_f64
@@ -51,17 +73,17 @@ where
 
 fn benchmark_deserialize<T>(name: &str, bufsize: usize, func: T)
 where
-    T: Fn(BufReader<File>) -> Vec<Tick>,
+    T: Fn(BufReader<File>) -> usize,
 {
     let f = File::open(Path::new(format!(".tmp/serialize/{}.dat", name).as_str())).unwrap();
     let f = BufReader::with_capacity(bufsize, f);
 
     let now = Instant::now();
-    let ticks_len = func(f).len();
+    let ticks_len = func(f);
     let secs = now.elapsed().as_secs_f32();
 
     if secs >= 0.001 {
-        println!("{:<15}    duration: {:>10.03}s", name, secs);
+        println!("{:<15}  duration: {:>10.03} s", name, secs);
     }
 }
 
@@ -90,7 +112,6 @@ fn run_benchmark(src_file: &str) {
     benchmark_serialize(&ticks, "cbor", bufsize, serialize_to_cbor);
     benchmark_serialize(&ticks, "message_pack", bufsize, serialize_to_message_pack);
     benchmark_serialize(&ticks, "bincode", bufsize, serialize_to_bincode);
-    benchmark_serialize(&ticks, "bson", bufsize, serialize_to_bson);
 
     println!("\ndeserialization results (bufsize={})):", bufsize);
     benchmark_deserialize("csv", bufsize, deserialize_from_csv);
@@ -99,7 +120,6 @@ fn run_benchmark(src_file: &str) {
     benchmark_deserialize("cbor", bufsize, deserialize_from_cbor);
     benchmark_deserialize("message_pack", bufsize, deserialize_from_message_pack);
     benchmark_deserialize("bincode", bufsize, deserialize_from_bincode);
-    benchmark_deserialize("bson", bufsize, deserialize_from_bson);
 }
 
 fn main() {

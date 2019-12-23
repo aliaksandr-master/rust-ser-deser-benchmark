@@ -2,12 +2,12 @@ use crate::structure::tick::Tick;
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
 
-pub fn deserialize_from_csv(f: BufReader<File>) -> Vec<Tick> {
+pub fn deserialize_from_csv(f: BufReader<File>) -> usize {
     let ticks: Vec<Tick> = csv::Reader::from_reader(f)
         .deserialize::<Tick>()
         .map(|x| x.unwrap())
         .collect();
-    ticks
+    ticks.len()
 }
 
 pub fn serialize_to_csv(ticks: &Vec<Tick>, f: &mut BufWriter<File>) {

@@ -14,17 +14,19 @@ cargo run --release -- benchmark_deserialize
 - rows in csv file: `2026424`
 
 ```text
-serialization (bufsize=16384)):
-csv                duration:      0.225s     size:  48565.713 kb
-json               duration:      0.508s     size: 117813.541 kb
-cbor               duration:      0.238s     size:  81138.500 kb
-message_pack       duration:      0.159s     size:  27690.138 kb
-bincode            duration:      0.076s     size:  39574.344 kb
+serialization results (bufsize=16384)):
+csv              duration:      0.226 s   size:  48565.713 kb
+json             duration:      0.515 s   size: 117813.541 kb
+protobuf         duration:      0.150 s   size:  31663.314 kb
+cbor             duration:      0.238 s   size:  81138.500 kb
+message_pack     duration:      0.153 s   size:  27690.138 kb
+bincode          duration:      0.076 s   size:  39574.344 kb
 
-deserialization (bufsize=16384)):
-csv                duration:      0.385s
-json               duration:      1.585s
-cbor               duration:      0.692s
-message_pack       duration:      0.165s
-bincode            duration:      0.093s
+deserialization results (bufsize=16384)):
+csv              duration:      0.382 s
+json             duration:      1.598 s
+protobuf         duration:      0.143 s
+cbor             duration:      0.692 s
+message_pack     duration:      0.163 s
+bincode          duration:      0.093 s
 ```

@@ -3,6 +3,13 @@
 mod formats;
 mod structure;
 
+use crate::formats::bincode::{deserialize_from_bincode, serialize_to_bincode};
+use crate::formats::bson::{deserialize_from_bson, serialize_to_bson};
+use crate::formats::cbor::{deserialize_from_cbor, serialize_to_cbor};
+use crate::formats::csv::{deserialize_from_csv, serialize_to_csv};
+use crate::formats::json::{deserialize_from_json, serialize_to_json};
+use crate::formats::message_pack::{deserialize_from_message_pack, serialize_to_message_pack};
+use crate::formats::protobuf::{deserialize_from_protobuf, serialize_to_protobuf};
 use crate::structure::tick::Tick;
 use clap::{App, AppSettings, Arg, SubCommand};
 use std::fs;
@@ -17,41 +24,6 @@ const SUBC_BENCHMARK: &'static str = "benchmark";
 
 fn run_generate() {
     unimplemented!("unimplemented");
-}
-
-fn serialize_to_protobuf(ticks: &Vec<Tick>, f: &mut BufWriter<File>) {
-    // TODO
-}
-
-fn serialize_to_cbor(ticks: &Vec<Tick>, f: &mut BufWriter<File>) {
-    serde_cbor::to_writer(f, ticks).unwrap();
-}
-
-fn serialize_to_csv(ticks: &Vec<Tick>, f: &mut BufWriter<File>) {
-    let mut w = csv::Writer::from_writer(f);
-    for d in ticks {
-        w.serialize(d).unwrap();
-    }
-    w.flush().unwrap();
-}
-
-fn serialize_to_json(ticks: &Vec<Tick>, f: &mut BufWriter<File>) {
-    serde_json::to_writer(f, ticks).unwrap();
-}
-
-fn serialize_to_rmp(ticks: &Vec<Tick>, f: &mut BufWriter<File>) {
-    rmp_serde::encode::write(f, ticks).unwrap()
-}
-
-fn serialize_to_bincode(ticks: &Vec<Tick>, f: &mut BufWriter<File>) {
-    bincode::serialize_into(f, ticks).unwrap();
-}
-
-fn serialize_to_bson(ticks: &Vec<Tick>, f: &mut BufWriter<File>) {
-    // It doesn't work yet
-    //    let b = bson::to_bson(ticks).unwrap();
-    //    f.write(b.as_str().unwrap().as_bytes()).unwrap();
-    //    f.flush().unwrap();
 }
 
 fn benchmark_serialize<T>(ticks: &Vec<Tick>, name: &str, bufsize: usize, func: T)
@@ -75,32 +47,6 @@ where
             File::open(path).unwrap().metadata().unwrap().len() as f64 / 1024_f64
         );
     }
-}
-
-fn deserialize_from_csv(f: BufReader<File>) -> Vec<Tick> {
-    let ticks: Vec<Tick> = csv::Reader::from_reader(f)
-        .deserialize::<Tick>()
-        .map(|x| x.unwrap())
-        .collect();
-    ticks
-}
-fn deserialize_from_json(f: BufReader<File>) -> Vec<Tick> {
-    serde_json::from_reader::<_, Vec<Tick>>(f).unwrap()
-}
-fn deserialize_from_protobuf(f: BufReader<File>) -> Vec<Tick> {
-    vec![]
-}
-fn deserialize_from_cbor(f: BufReader<File>) -> Vec<Tick> {
-    serde_cbor::from_reader(f).unwrap()
-}
-fn deserialize_from_rmp(f: BufReader<File>) -> Vec<Tick> {
-    rmp_serde::decode::from_read(f).unwrap()
-}
-fn deserialize_from_bincode(f: BufReader<File>) -> Vec<Tick> {
-    bincode::deserialize_from(f).unwrap()
-}
-fn deserialize_from_bson(f: BufReader<File>) -> Vec<Tick> {
-    vec![]
 }
 
 fn benchmark_deserialize<T>(name: &str, bufsize: usize, func: T)
@@ -142,7 +88,7 @@ fn run_benchmark(src_file: &str) {
     benchmark_serialize(&ticks, "json", bufsize, serialize_to_json);
     benchmark_serialize(&ticks, "protobuf", bufsize, serialize_to_protobuf);
     benchmark_serialize(&ticks, "cbor", bufsize, serialize_to_cbor);
-    benchmark_serialize(&ticks, "message_pack", bufsize, serialize_to_rmp);
+    benchmark_serialize(&ticks, "message_pack", bufsize, serialize_to_message_pack);
     benchmark_serialize(&ticks, "bincode", bufsize, serialize_to_bincode);
     benchmark_serialize(&ticks, "bson", bufsize, serialize_to_bson);
 
@@ -151,7 +97,7 @@ fn run_benchmark(src_file: &str) {
     benchmark_deserialize("json", bufsize, deserialize_from_json);
     benchmark_deserialize("protobuf", bufsize, deserialize_from_protobuf);
     benchmark_deserialize("cbor", bufsize, deserialize_from_cbor);
-    benchmark_deserialize("message_pack", bufsize, deserialize_from_rmp);
+    benchmark_deserialize("message_pack", bufsize, deserialize_from_message_pack);
     benchmark_deserialize("bincode", bufsize, deserialize_from_bincode);
     benchmark_deserialize("bson", bufsize, deserialize_from_bson);
 }

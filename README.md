@@ -23,6 +23,11 @@ cargo run --release -- benchmark_deserialize
 
 - initial csv file size:  `48565.713 kb`
 - rows in csv file: `2026424`
+- data format:
+
+| timestamp |  price_ips |  volume |
+|---|---|---|
+| f64 | u64 | u32 |
 
 ```text
 serialization results (bufsize=16384)):

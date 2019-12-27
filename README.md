@@ -26,20 +26,23 @@ cargo run --release -- benchmark_deserialize
 
 ```text
 serialization results (bufsize=16384)):
-json             duration:      0.529 s   size: 117813.541 kb
-cbor             duration:      0.241 s   size:  81138.500 kb
-csv              duration:      0.221 s   size:  48565.713 kb
-message_pack     duration:      0.165 s   size:  27690.138 kb
-protobuf         duration:      0.158 s   size:  31663.314 kb
-bincode          duration:      0.079 s   size:  39574.344 kb
-speedy           duration:      0.073 s   size:  39574.340 kb
+                 duration
+json             0.529 s |||||||   117813.541 kb  |||||||||
+cbor             0.241 s ||||||     81138.500 kb  |||||||| 
+csv              0.221 s |||||      48565.713 kb  |||||||  
+message_pack     0.165 s ||||       27690.138 kb  |||   
+protobuf         0.158 s |||        31663.314 kb  ||||    
+bincode          0.079 s ||         39574.344 kb  ||||||     
+speedy           0.073 s |          39574.340 kb  |||||      
+
 
 deserialization results (bufsize=16384)):
-json             duration:      1.609 s
-cbor             duration:      0.717 s
-csv              duration:      0.377 s
-message_pack     duration:      0.166 s
-protobuf         duration:      0.156 s
-bincode          duration:      0.092 s
-speedy           duration:      0.079 s
+                 duration
+json             1.609 s |||||||
+cbor             0.717 s |||||| 
+csv              0.377 s |||||  
+message_pack     0.166 s ||||   
+protobuf         0.156 s |||    
+bincode          0.092 s ||     
+speedy           0.079 s |      
 ```
